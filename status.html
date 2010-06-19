@@ -1,7 +1,7 @@
 <html>
     <head>
       <script src="vaike/vaike.xhr.js"></script>
-      <script src="facebook-identity-api.js"></script>
+      <script src="vaike/vaike.facebook.js"></script>
       <script>
 
       var pollInterval = 1000 * 5;  // 5 seconds
@@ -62,7 +62,7 @@
 
           killSchedule(scheduleTimer);
 
-          FACEBOOK_IDENTITY_API.getUserName( function (un, lnk) {
+          VAIKE.facebook.getUserName( function (un, lnk) {
 
               username = un;
               logoutLink = lnk;
