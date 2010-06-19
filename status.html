@@ -1,0 +1,122 @@
+<html>
+    <head>
+      <script src="facebook-identity-api.js"></script>
+      <script>
+
+      var pollIntervalMin = 1000 * 5;  // 5 seconds
+      var pollIntervalMax = 1000 * 60 * 60;  // 1 hour
+      var requestFailureCount = 0;  // used for exponential backoff
+      var requestTimeout = 1000 * 5;  // 5 seconds
+
+      var username;
+
+      // false = logged off
+      // true = logged in
+      var userStatus = false;
+
+      var scheduleTimer;
+
+      var logoutLink = "";
+
+      /**
+       * Logs out the user
+       */
+      function logout() {
+          if (logoutLink !== "") {
+              chrome.tabs.create({ url: logoutLink });
+          }
+      }
+
+      /**
+       * Kills the timer
+       *
+       * @param {Object} scheduleTimer
+       */
+      function killSchedule(scheduleTimer) {
+          if (scheduleTimer !== undefined) {
+              clearTimeout(scheduleTimer);
+          }
+      }
+
+      /**
+       * Switch the icon to logged in and the title to the username
+       */
+      function showLoggedIn() {
+          chrome.browserAction.setIcon({path:"logged_in.png"});
+
+          if (username !== undefined)   {
+              chrome.browserAction.setTitle({ title: username });
+          }
+      }
+
+      /**
+       * Switch the icon to logged out and the title to 'Facebook Status'
+       */
+      function showLoggedOut() {
+          chrome.browserAction.setIcon({path:"logged_out.png"});
+          chrome.browserAction.setTitle({ title: "Facebook Status"});
+      }
+
+
+      /**
+       * Starts the username request
+       */
+      function startRequest() {
+
+          killSchedule(scheduleTimer);
+
+          FACEBOOK_IDENTITY_API.getUserName( function (un, lnk) {
+
+              username = un;
+              logoutLink = lnk;
+              // if the user is logged in
+              if (un !== undefined) {
+                  if (!userStatus) {
+                      showLoggedIn();
+                      userStatus = true;
+                  }
+              } else {
+                  if (userStatus) {
+                      showLoggedOut();
+                      userStatus = false;
+                  }
+              }
+              scheduleRequest();
+          });
+      }
+
+
+      /**
+       * Schedules the next request
+       */
+      function scheduleRequest() {
+        var randomness = Math.random() * 2;
+        var exponent = Math.pow(2, requestFailureCount);
+        var delay = Math.min(randomness * pollIntervalMin * exponent, pollIntervalMax);
+        delay = Math.round(delay);
+
+        scheduleTimer = window.setTimeout(startRequest, delay);
+      }
+
+
+      function init() {
+
+          // default is logged off
+          showLoggedOut();
+          startRequest();
+
+          // clicking on the button
+          chrome.browserAction.onClicked.addListener( function (tab) {
+
+              if (username !== undefined)   {
+                  logout();
+              }
+          });
+      }
+
+      </script>
+    </head>
+    <body onload="init()">
+
+    </body>
+</html>

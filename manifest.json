@@ -1,0 +1,19 @@
+{
+  "name": "Facebook Status",
+  "version": "0.1",
+  "description": "Facebook status",
+  "background_page": "status.html",
+  "icons": {
+      "128": "icon_128.png",
+      "48": "icon_48.png",
+      "16": "icon_16.png"
+   },
+  "browser_action": {
+      "default_title": "Facebook Status"
+  },
+  "permissions": [
+    "http://*/",
+    "https://*/",
+    "tabs"
+  ]
+}
