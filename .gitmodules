@@ -1,0 +1,3 @@
+[submodule "Vaike"]
+	path = Vaike
+	url = git@github.com:yikulju/Vaike.git

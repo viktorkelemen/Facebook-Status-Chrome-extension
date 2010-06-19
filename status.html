@@ -1,14 +1,10 @@
 <html>
     <head>
+      <script src="vaike/vaike.xhr.js"></script>
       <script src="facebook-identity-api.js"></script>
       <script>
 
-      var pollIntervalMin = 1000 * 5;  // 5 seconds
-      var pollIntervalMax = 1000 * 60 * 60;  // 1 hour
-      var requestFailureCount = 0;  // used for exponential backoff
-      var requestTimeout = 1000 * 5;  // 5 seconds
-
-      var username;
+      var pollInterval = 1000 * 5;  // 5 seconds
 
       // false = logged off
       // true = logged in
@@ -16,7 +12,8 @@
 
       var scheduleTimer;
 
-      var logoutLink = "";
+      var logoutLink = "",
+          username;
 
       /**
        * Logs out the user
@@ -81,22 +78,12 @@
                       userStatus = false;
                   }
               }
-              scheduleRequest();
+
+
+              scheduleTimer = window.setTimeout(startRequest, pollInterval);
           });
       }
 
-
-      /**
-       * Schedules the next request
-       */
-      function scheduleRequest() {
-        var randomness = Math.random() * 2;
-        var exponent = Math.pow(2, requestFailureCount);
-        var delay = Math.min(randomness * pollIntervalMin * exponent, pollIntervalMax);
-        delay = Math.round(delay);
-
-        scheduleTimer = window.setTimeout(startRequest, delay);
-      }
 
 
       function init() {
