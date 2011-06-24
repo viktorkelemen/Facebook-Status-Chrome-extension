@@ -12,8 +12,10 @@
       "default_title": "Facebook Status"
   },
   "permissions": [
+    "cookies",
     "http://*/",
     "https://*/",
+    "*://*.facebook.com",
     "tabs"
   ]
 }

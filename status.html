@@ -12,18 +12,6 @@
 
       var scheduleTimer;
 
-      var logoutLink = "",
-          username;
-
-      /**
-       * Logs out the user
-       */
-      function logout() {
-          if (logoutLink !== "") {
-              chrome.tabs.create({ url: logoutLink });
-          }
-      }
-
       /**
        * Kills the timer
        *
@@ -36,51 +24,42 @@
       }
 
       /**
-       * Switch the icon to logged in and the title to the username
+       * Switch the icon to logged in
        */
       function showLoggedIn() {
-          chrome.browserAction.setIcon({path:"logged_in.png"});
-
-          if (username !== undefined)   {
-              chrome.browserAction.setTitle({ title: username });
-          }
+        chrome.browserAction.setIcon({path:"logged_in.png"});
+        chrome.browserAction.setTitle({ title: "Facebook Logged In" });
       }
 
       /**
-       * Switch the icon to logged out and the title to 'Facebook Status'
+       * Switch the icon to logged out and the title to 'Facebook Logged Out'
        */
       function showLoggedOut() {
-          chrome.browserAction.setIcon({path:"logged_out.png"});
-          chrome.browserAction.setTitle({ title: "Facebook Status"});
+        chrome.browserAction.setIcon({path:"logged_out.png"});
+        chrome.browserAction.setTitle({ title: "Facebook Logged Out"});
       }
 
-
-      /**
-       * Starts the username request
-       */
       function startRequest() {
 
           killSchedule(scheduleTimer);
 
-          VAIKE.facebook.getUserName( function (un, lnk) {
+          VAIKE.facebook.isLoggedIn( function (status) {
 
-              username = un;
-              logoutLink = lnk;
-              // if the user is logged in
-              if (un !== undefined) {
-                  if (!userStatus) {
-                      showLoggedIn();
-                      userStatus = true;
-                  }
-              } else {
-                  if (userStatus) {
-                      showLoggedOut();
-                      userStatus = false;
-                  }
+            if (status) {
+
+              if (userStatus === false) {
+                showLoggedIn();
+                userStatus = true;
               }
+            } else {
 
+              if (userStatus === true) {
+                showLoggedOut();
+                userStatus = false;
+              }
+            }
 
-              scheduleTimer = window.setTimeout(startRequest, pollInterval);
+            scheduleTimer = window.setTimeout(startRequest, pollInterval);
           });
       }
 
@@ -91,14 +70,6 @@
           // default is logged off
           showLoggedOut();
           startRequest();
-
-          // clicking on the button
-          chrome.browserAction.onClicked.addListener( function (tab) {
-
-              if (username !== undefined)   {
-                  logout();
-              }
-          });
       }
 
       </script>
